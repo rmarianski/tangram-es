@@ -174,12 +174,15 @@ void render() {
     RenderState::depthWrite(GL_TRUE);
     auto& color = m_scene->background();
     RenderState::clearColor(color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     {
         std::lock_guard<std::mutex> lock(m_tilesMutex);
 
         // Loop over all styles
+        // 1. Draw all non proxy tiles, and filling the stencil buffer
+        RenderState::stencilTest(GL_TRUE);
+        RenderState::stencilWrite(0xFF);
         for (const auto& style : m_scene->styles()) {
 
             // Set time uniforms style's shader programs
@@ -187,11 +190,35 @@ void render() {
 
             style->onBeginDrawFrame(*m_view, *m_scene);
 
-            // Loop over all tiles in m_tileSet
             for (const auto& tile : m_tileManager->getVisibleTiles()) {
-                tile->draw(*style, *m_view);
-            }
 
+                const auto& tileID = tile->getID();
+
+                if (tile->getProxyCounter() == 0) {
+                    RenderState::stencilFunc(GL_ALWAYS, 1, tile->proxyMask());
+                    tile->draw(*style, *m_view);
+                }
+            }
+            style->onEndDrawFrame();
+        }
+
+        // 2. Draw all proxy tiles, with stencil check and not no writes to stencil buffer
+        RenderState::stencilTest(GL_TRUE);
+        RenderState::stencilWrite(0x00);
+        for (const auto& style : m_scene->styles()) {
+
+            // Set time uniforms style's shader programs
+            style->getShaderProgram()->setUniformf("u_time", g_time);
+            style->onBeginDrawFrame(*m_view, *m_scene);
+
+            for (const auto& tile : m_tileManager->getVisibleTiles()) {
+                const auto& tileID = tile->getID();
+                if (tile->getProxyCounter() > 0) {
+                    GLuint mask = 256*(tileID.x % 256) + (tileID.y % 256);
+                    RenderState::stencilFunc(GL_NOTEQUAL, 1, mask);
+                    tile->draw(*style, *m_view);
+                }
+            }
             style->onEndDrawFrame();
         }
     }
