@@ -3,6 +3,7 @@
 #include "glm/mat4x4.hpp"
 #include "glm/vec2.hpp"
 #include "tileID.h"
+#include "gl.h"
 
 #include <map>
 #include <memory>
@@ -101,10 +102,56 @@ public:
 
     bool unsetProxy(ProxyID id) {
         if ((m_proxies & id) != 0) {
+            m_prevProxies = m_proxies;
             m_proxies &= ~id;
             return true;
         }
         return false;
+    }
+
+    GLuint proxyMask() {
+        GLuint mask = 0;
+        switch(m_prevProxies) {
+            case Tile::ProxyID::child1:
+            {
+                auto proxyID = m_id.getChild(0);
+                mask = 256*(proxyID.x % 256) + (proxyID.y % 256);
+                break;
+            }
+            case Tile::ProxyID::child2:
+            {
+                auto proxyID = m_id.getChild(1);
+                mask = 256*(proxyID.x % 256) + (proxyID.y % 256);
+                break;
+            }
+            case Tile::ProxyID::child3:
+            {
+                auto proxyID = m_id.getChild(2);
+                mask = 256*(proxyID.x % 256) + (proxyID.y % 256);
+                break;
+            }
+            case Tile::ProxyID::child4:
+            {
+                auto proxyID = m_id.getChild(3);
+                mask = 256*(proxyID.x % 256) + (proxyID.y % 256);
+                break;
+            }
+            case Tile::ProxyID::parent:
+            {
+                auto proxyID = m_id.getParent();
+                mask = 256*(proxyID.x % 256) + (proxyID.y % 256);
+                break;
+            }
+            case Tile::ProxyID::parent2:
+            {
+                auto proxyID = m_id.getParent().getParent();
+                mask = 256*(proxyID.x % 256) + (proxyID.y % 256);
+                break;
+            }
+            case Tile::ProxyID::no_proxies:
+                mask = 0;
+        }
+        return mask;
     }
 
     bool isCanceled() const {
@@ -165,6 +212,7 @@ private:
     int m_proxyCounter = 0;
 
     uint8_t m_proxies = 0;
+    uint8_t m_prevProxies = 0;
 
     /* The loading state of the tile.
      * NB: This may be moved to TileTask when multiple DataSources should

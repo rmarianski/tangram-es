@@ -123,6 +123,8 @@ void Tile::reset() {
         if (!labelMesh) { continue; }
         labelMesh->reset();
     }
+    m_proxies = 0;
+    m_prevProxies = 0;
 }
 
 void Tile::draw(const Style& _style, const View& _view) {
