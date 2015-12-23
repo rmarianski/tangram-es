@@ -52,6 +52,7 @@ namespace RenderState {
         depthWrite.init(GL_TRUE);
 
         glDisable(GL_STENCIL_TEST);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glDepthFunc(GL_LEQUAL);
         glClearDepthf(1.0);
         glDepthRangef(0.0, 1.0);
