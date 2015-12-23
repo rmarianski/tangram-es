@@ -171,40 +171,44 @@ void update(float _dt) {
 void render() {
 
     // Set up openGL for new frame
-    RenderState::depthWrite(GL_TRUE);
     auto& color = m_scene->background();
     RenderState::clearColor(color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     {
         std::lock_guard<std::mutex> lock(m_tilesMutex);
 
         // Loop over all styles
         // 1. Draw all non proxy tiles, and filling the stencil buffer
-        RenderState::stencilTest(GL_TRUE);
         RenderState::stencilWrite(0xFF);
+        RenderState::stencilTest(GL_TRUE);
+        glClear(GL_STENCIL_BUFFER_BIT);
         for (const auto& style : m_scene->styles()) {
 
             // Set time uniforms style's shader programs
             style->getShaderProgram()->setUniformf("u_time", g_time);
 
             style->onBeginDrawFrame(*m_view, *m_scene);
+            RenderState::depthWrite(GL_FALSE);
+            RenderState::depthTest(GL_FALSE);
 
             for (const auto& tile : m_tileManager->getVisibleTiles()) {
 
                 const auto& tileID = tile->getID();
 
                 if (tile->getProxyCounter() == 0) {
-                    RenderState::stencilFunc(GL_ALWAYS, 1, tile->proxyMask());
+                    GLuint mask = 256*(tileID.x % 256) + (tileID.y % 256);
+                    RenderState::stencilFunc(GL_ALWAYS, 1, 0xFF);
                     tile->draw(*style, *m_view);
                 }
             }
             style->onEndDrawFrame();
         }
 
-        // 2. Draw all proxy tiles, with stencil check and not no writes to stencil buffer
-        RenderState::stencilTest(GL_TRUE);
+        RenderState::depthWrite(GL_TRUE);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         RenderState::stencilWrite(0x00);
+        RenderState::stencilTest(GL_TRUE);
+        // 2. Draw all proxy tiles, with stencil check and not no writes to stencil buffer
         for (const auto& style : m_scene->styles()) {
 
             // Set time uniforms style's shader programs
@@ -212,10 +216,23 @@ void render() {
             style->onBeginDrawFrame(*m_view, *m_scene);
 
             for (const auto& tile : m_tileManager->getVisibleTiles()) {
-                const auto& tileID = tile->getID();
                 if (tile->getProxyCounter() > 0) {
-                    GLuint mask = 256*(tileID.x % 256) + (tileID.y % 256);
-                    RenderState::stencilFunc(GL_NOTEQUAL, 1, mask);
+                    RenderState::stencilFunc(GL_NOTEQUAL, 1, 0xFF) ;//tile->proxyMask());
+                    tile->draw(*style, *m_view);
+                }
+            }
+            style->onEndDrawFrame();
+        }
+        RenderState::stencilWrite(0x00);
+        RenderState::stencilTest(GL_FALSE);
+        for (const auto& style : m_scene->styles()) {
+
+            // Set time uniforms style's shader programs
+            style->getShaderProgram()->setUniformf("u_time", g_time);
+            style->onBeginDrawFrame(*m_view, *m_scene);
+
+            for (const auto& tile : m_tileManager->getVisibleTiles()) {
+                if (tile->getProxyCounter() == 0) {
                     tile->draw(*style, *m_view);
                 }
             }

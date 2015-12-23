@@ -93,6 +93,8 @@ void TileWorker::run() {
 
         context.initFunctions(*scene);
 
+        usleep(500000);
+
         if (tileData) {
             task->tile->build(context, *scene, *tileData, *task->source);
 
