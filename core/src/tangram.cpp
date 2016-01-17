@@ -498,4 +498,14 @@ void setupGL() {
     while (Error::hadGlError("Tangram::setupGL()")) {}
 }
 
+void shutdown() {
+    m_tileWorker.reset();
+    m_scene.reset();
+    m_view.reset();
+    m_labels.reset();
+    m_skybox.reset();
+    m_inputHandler.reset();
+    m_tileManager.reset();
+}
+
 }

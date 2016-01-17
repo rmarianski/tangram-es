@@ -126,10 +126,13 @@ void TileWorker::enqueue(std::shared_ptr<TileTask>&& task) {
 }
 
 void TileWorker::stop() {
+    bool running;
     {
         std::unique_lock<std::mutex> lock(m_mutex);
+        running = m_running;
         m_running = false;
     }
+    if (!running) { return; }
 
     m_condition.notify_all();
 

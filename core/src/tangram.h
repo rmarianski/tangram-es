@@ -21,6 +21,8 @@ class DataSource;
 // given resource path
 void initialize(const char* _scenePath);
 
+void shutdown();
+
 // Initialize graphics resources; OpenGL context must be created prior to calling this
 void setupGL();
 
