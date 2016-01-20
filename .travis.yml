@@ -6,6 +6,9 @@ matrix:
           env: PLATFORM=osx
           compiler: clang
         - os: linux
+          sudo: required
+          dist: trusty
+          group: edge
           env: PLATFORM=linux CXX=g++-4.9 CC=gcc-4.9
           addons:
             apt:
@@ -15,6 +18,9 @@ matrix:
           env: PLATFORM=ios
           compiler: clang
         - os: linux
+          sudo: required
+          dist: trusty
+          group: edge
           env: PLATFORM=android
           addons:
             apt:
@@ -42,5 +48,3 @@ script:
 after_success:
     - source ./travis/script_deploy_android_snapshot.sh
     - source ./travis/script_deploy_android_demo.sh
-
-sudo: false
