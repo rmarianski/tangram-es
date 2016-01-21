@@ -1,4 +1,4 @@
-language: android
+language: cpp
 
 matrix:
     include:
@@ -8,7 +8,6 @@ matrix:
         - os: linux
           sudo: required
           dist: trusty
-          group: edge
           env: PLATFORM=linux CXX=g++-4.9 CC=gcc-4.9
           addons:
             apt:
@@ -20,14 +19,11 @@ matrix:
         - os: linux
           sudo: required
           dist: trusty
-          group: edge
           env: PLATFORM=android
           addons:
             apt:
               sources: [ 'kubuntu-backports', 'george-edison55-precise-backports' ]
               packages: [ 'cmake', 'lib32z1-dev', 'lib32stdc++6', 's3cmd' ]
-          android:
-            components: [ 'build-tools-21.1.2', 'android-22' ]
 
 before_install:
     - git submodule init && git submodule update
