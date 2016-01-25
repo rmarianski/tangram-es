@@ -452,6 +452,7 @@ public class MapController implements Renderer {
     private synchronized native void handleRotateGesture(float posX, float posY, float rotation);
     private synchronized native void handleShoveGesture(float distance);
     public synchronized native void pickFeature(float posX, float posY);
+    public synchronized native void setOverrideMatrices(float[] view, float[] projection);
 
     private native void onUrlSuccess(byte[] rawDataBytes, long callbackPtr);
     private native void onUrlFailure(long callbackPtr);

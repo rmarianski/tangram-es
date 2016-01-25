@@ -144,6 +144,8 @@ public:
     float pixelScale() const { return m_pixelScale; }
     float pixelsPerMeter() const;
 
+    void setOverrideMatrices(const float* _view, const float* _proj);
+
 protected:
 
     void updateMatrices();
@@ -168,6 +170,9 @@ protected:
     glm::mat4 m_viewProj;
     glm::mat4 m_invViewProj;
     glm::mat3 m_normalMatrix;
+
+    std::shared_ptr<glm::mat4> m_overrideView;
+    std::shared_ptr<glm::mat4> m_overrideProj;
 
     float m_roll = 0.f;
     float m_roll_prev = 0.f;

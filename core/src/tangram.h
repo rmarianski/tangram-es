@@ -134,5 +134,9 @@ struct TouchItem {
 
 const std::vector<TouchItem>& pickFeaturesAt(float _x, float _y);
 
+// Directly apply custom view and projection matrices to the map view;
+// passing nullptr will reset the relevant matrix to default behavior.
+void setOverrideMatrices(const float* _view, const float* _proj);
+
 }
 
