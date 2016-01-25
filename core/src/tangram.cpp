@@ -32,6 +32,9 @@ namespace Tangram {
 
 const static size_t MAX_WORKERS = 2;
 
+std::mutex m_tilesMutex;
+std::mutex m_tasksMutex;
+std::queue<std::function<void()>> m_tasks;
 std::unique_ptr<TileManager> m_tileManager;
 std::unique_ptr<TileWorker> m_tileWorker;
 std::shared_ptr<Scene> m_scene;
@@ -39,9 +42,6 @@ std::shared_ptr<View> m_view;
 std::unique_ptr<Labels> m_labels;
 std::unique_ptr<Skybox> m_skybox;
 std::unique_ptr<InputHandler> m_inputHandler;
-std::queue<std::function<void()>> m_tasks;
-std::mutex m_tilesMutex;
-std::mutex m_tasksMutex;
 
 std::array<Ease, 4> m_eases;
 enum class EaseField { position, zoom, rotation, tilt };
