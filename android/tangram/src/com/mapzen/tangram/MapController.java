@@ -47,23 +47,24 @@ public class MapController implements Renderer {
      * Construct a MapController using the default scene file
      * @param mainApp Activity in which the map will function; the asset bundle for this activity must contain all
      * the local files that the map will need
-     * @param view MapView where the map will be displayed; input events from this view will be handled by the
+     * @param view GLSurfaceView where the map will be displayed; input events from this view will be handled by the
      * resulting MapController
      */
-    public MapController(Activity mainApp, MapView view) {
+    public MapController(Activity mainApp, GLSurfaceView view) {
 
         this(mainApp, view, "scene.yaml");
+
     }
 
     /**
      * Construct a MapController using a custom scene file
      * @param mainApp Activity in which the map will function; the asset bundle for this activity must contain all
      * the local files that the map will need
-     * @param view MapView where the map will be displayed; input events from this view will be handled by the
+     * @param view GLSurfaceView where the map will be displayed; input events from this view will be handled by the
      * resulting MapController
      * @param sceneFilePath Location of the YAML scene file within the assets directory
      */
-    public MapController(Activity mainApp, MapView view, String sceneFilePath) {
+    public MapController(Activity mainApp, GLSurfaceView view, String sceneFilePath) {
 
         scenePath = sceneFilePath;
 
@@ -463,7 +464,7 @@ public class MapController implements Renderer {
     private static String TAG = "Tangram";
     private String scenePath;
     private long time = System.nanoTime();
-    private MapView mapView;
+    private GLSurfaceView mapView;
     private AssetManager assetManager;
     private TouchInput touchInput;
 
