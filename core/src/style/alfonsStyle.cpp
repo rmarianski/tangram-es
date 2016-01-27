@@ -68,14 +68,14 @@ struct AlfonsContext : public alf::TextureCallback {
         // auto &texData = batches[atlas].texData;
         // auto &dirtyRect = batches[atlas].dirtyRect;
         // auto width = batches[atlas].width;
-        uint stride = TEXTURE_SIZE;
-        uint width = TEXTURE_SIZE;
+        uint16_t stride = TEXTURE_SIZE;
+        uint16_t width = TEXTURE_SIZE;
 
         unsigned char* dst = &m_texData[(gx + pad) + (gy + pad) * stride];
 
-        uint pos = 0;
-        for (uint y = 0; y < gh; y++) {
-            for (uint x = 0; x < gw; x++) {
+        size_t pos = 0;
+        for (uint16_t y = 0; y < gh; y++) {
+            for (uint16_t x = 0; x < gw; x++) {
                 //dst[x + (y * stride)] += std::min(src[pos++] + 30,  0xff);
                 dst[x + (y * stride)] = src[pos++];
             }
