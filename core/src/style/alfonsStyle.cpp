@@ -247,6 +247,7 @@ struct Builder : public StyleBuilder {
             yMin = std::numeric_limits<float>::max();
             xMin = std::numeric_limits<float>::max();
             bbox = glm::vec2(0);
+            numLines = 1;
             vertices.clear();
         }
         // TextRenderer interface
@@ -354,26 +355,29 @@ bool Builder::prepareLabel(const AlfonsStyle::Parameters& _params, Label::Type _
 
     m_scratch.fill = _params.fill;
     m_scratch.stroke = _params.stroke;
-    // m_scratch.bbox = glm::vec2(0);
-
     {
         auto ctx = m_style.context();
 
         std::lock_guard<std::mutex> lock(ctx->m_mutex);
         auto line = m_shaper.shape(ctx->m_font, _params.text);
+        if (_type == Label::Type::point) {
+            auto adv = m_batch.draw(line, {0, 0}, _params.maxLineWidth * line.height() * 0.5);
+            m_scratch.numLines = adv.y/line.height();
 
-        // if (_params.maxLineWidth != 15)
-        //     m_batch.draw(line, {0, line.height()}, 200);
-        // else
-        m_batch.draw(line, {0, line.ascent()});
+            m_scratch.bbox.y = adv.y;
+            m_scratch.bbox.x = adv.x;
 
-        //
-        m_scratch.bbox.y = line.height();
-        m_scratch.bbox.x = line.advance();
-        m_scratch.metrics.descender = -line.height();
+        } else {
+            m_batch.draw(line, {0, 0});
+
+            m_scratch.bbox.y = line.height();
+            m_scratch.bbox.x = line.advance();
+        }
+
+        m_scratch.metrics.descender = -line.descent();
         m_scratch.metrics.ascender = line.ascent();
         m_scratch.metrics.lineHeight = line.height();
-        m_scratch.quadsLocalOrigin = { 0, 0 };
+        m_scratch.quadsLocalOrigin = { 0, -line.ascent() };
 
     }
 
