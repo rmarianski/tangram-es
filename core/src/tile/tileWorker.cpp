@@ -35,7 +35,15 @@ TileWorker::~TileWorker(){
 
 void disposeBuilder(std::unique_ptr<TileBuilder> _builder) {
     if (_builder) {
-        Tangram::runOnMainLoop([b = std::shared_ptr<TileBuilder>(std::move(_builder))](){});
+        // Bind _builder to a std::function that will run on the next mainloop
+        // iteration and does therefore dispose the TileBuilder, including it's
+        // Scene reference with OpenGL resources on the mainloop. This is done
+        // in order to ensure that no GL functions are called on
+        // the worker-thread.
+        auto disposer = std::bind([](auto builder){},
+                                  std::shared_ptr<TileBuilder>(std::move(_builder)));
+
+        Tangram::runOnMainLoop(disposer);
     }
 }
 
